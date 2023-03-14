@@ -8,8 +8,6 @@ import streamlit as st
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
-from nbdev.export import nb_export
-from streamlit_jupyter import StreamlitPatcher, tqdm
 
 # %% movie-test.ipynb 3
 st.title(":blue[Fanz O' Filmz] Movie Recommender")
