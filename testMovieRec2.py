@@ -109,8 +109,11 @@ def recommend(movie):
     distances = cs[movie_indices]
     movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
 
-    for i in movies_list: 
-        print(movies.iloc[i[0]].clean_title)
+    recommended_movies = []
+    for i in movies_list:
+        recommended_movies.append([movies.iloc[i[0]].clean_title])
+
+    return recommended_movies
 
 # %% testMovieRec2.ipynb 36
 selected_movie_name = st.selectbox('Please select a movie you enjoy:', movies['clean_title'])
