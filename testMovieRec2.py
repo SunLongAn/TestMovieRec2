@@ -119,6 +119,9 @@ def recommend(movie):
     return recommended_movies, movies_list
 
 # %% movie-test.ipynb 38
+selected_movie_name = st.selectbox('Please select a movie you enjoy:', movies['clean_title'])
+
+# %% movie-test.ipynb 39
 if st.button('Get Recommendations'):
     recommendations = recommend(selected_movie_name)
     st.write("Based on your selection, we recommend the following movies:")
