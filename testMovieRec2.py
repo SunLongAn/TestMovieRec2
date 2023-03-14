@@ -111,7 +111,7 @@ def recommend(movie):
 
     recommended_movies = []
     for i in movies_list:
-        recommended_movies.append([movies.iloc[i[0]].clean_title])
+        recommended_movies.append(movies.iloc[i[0]].clean_title)
 
     return recommended_movies
 
@@ -123,4 +123,4 @@ if st.button('Get Recommendations'):
     recommendations = recommend(selected_movie_name)
     st.write("Based on your selection, we recommend the following movies:")
     for j in recommendations:
-        st.write(j[1])
+        st.write(j[0])
