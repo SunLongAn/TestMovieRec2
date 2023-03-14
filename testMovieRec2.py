@@ -104,24 +104,18 @@ count_matrix = count.fit_transform(movies['combined_features'])
 cs = cosine_similarity(count_matrix)
 
 # %% testMovieRec2.ipynb 34
-indices = pd.Series(movies.index, index=movies['clean_title'])
-
-# %% testMovieRec2.ipynb 36
 def recommend(movie):
     movie_indices = movies[movies['clean_title'] == movie].index[0]
     distances = cs[movie_indices]
     movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
 
-    recommended_movies = []
-    for i in movies_list:
-        recommended_movies.append([movies.iloc[i[0]].clean_title])
+    for i in movies_list: 
+        print(movies.iloc[i[0]].clean_title)
 
-    return recommended_movies
-
-# %% testMovieRec2.ipynb 38
+# %% testMovieRec2.ipynb 36
 selected_movie_name = st.selectbox('Please select a movie you enjoy:', movies['clean_title'])
 
-# %% testMovieRec2.ipynb 39
+# %% testMovieRec2.ipynb 37
 if st.button('Get Recommendations'):
     recommendations = recommend(selected_movie_name)
     st.write("Based on your selection, we recommend the following movies:")
