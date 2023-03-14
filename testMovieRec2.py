@@ -123,4 +123,4 @@ if st.button('Get Recommendations'):
     recommendations = recommend(selected_movie_name)
     st.write("Based on your selection, we recommend the following movies:")
     for j in recommendations:
-        st.write(j[0])
+        st.write(j)
