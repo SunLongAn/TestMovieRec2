@@ -96,6 +96,10 @@ def combine_features(data):
 # %% testMovieRec2.ipynb 28
 movies['combined_features'] = combine_features(movies)
 
+# %% testMovieRec2.ipynb 30
+tfvec = TfidfVectorizer()
+tfvec_matrix = tfvec.fit_transform(movies['combined_features'])
+
 # %% testMovieRec2.ipynb 31
 cs = cosine_similarity(tfvec_matrix)
 
