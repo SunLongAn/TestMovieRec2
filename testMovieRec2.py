@@ -113,7 +113,7 @@ def recommend(movie):
     for i in movies_list:
         recommended_movies.append(movies.iloc[i[0]].clean_title)
 
-    return recommended_movies, movies_list
+    return recommended_movies
 
 # %% testMovieRec2.ipynb 35
 selected_movie_name = st.selectbox('Please select a movie you enjoy:', movies['clean_title'].values)
