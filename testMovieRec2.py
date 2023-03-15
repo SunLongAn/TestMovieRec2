@@ -4,22 +4,26 @@
 __all__ = []
 
 # %% testMovieRec2.ipynb 0
+# imports to be used in .py file
 import streamlit as st
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 # %% testMovieRec2.ipynb 3
+#create title for web app
 st.title(":blue[Fanz O' Filmz] Movie Recommender")
 
-# %% testMovieRec2.ipynb 4
+# %% testMovieRec2.ipynb 5
+#import data to dataframe
 df = pd.read_csv('data/IMDb_All_Genres_etf_clean1.csv')
 
-# %% testMovieRec2.ipynb 5
+# %% testMovieRec2.ipynb 6
+#create copy of dataframe for editing to prevent errors, selecting features used for recommendations
 movies = df[['Movie_Title', 'Year', 'Director', 'Actors', 'main_genre', 'side_genre']].copy()
 
-# %% testMovieRec2.ipynb 6
-# combine genre columns
+# %% testMovieRec2.ipynb 7
+# function to combine genre columns
 def combine_genres(data):
     comb_genres = []
     for i in range(0, data.shape[0]):
@@ -27,16 +31,19 @@ def combine_genres(data):
         
     return comb_genres
 
-# %% testMovieRec2.ipynb 7
+# %% testMovieRec2.ipynb 8
+# prepare column for combination
 movies['side_genre'] = movies['side_genre'].str.replace(",","")
 
-# %% testMovieRec2.ipynb 8
+# %% testMovieRec2.ipynb 9
+# combine genre columns
 movies['genres'] = combine_genres(movies)
 
-# %% testMovieRec2.ipynb 9
+# %% testMovieRec2.ipynb 10
+# drop original genre columns - no longer needed
 movies = movies.drop(columns = ['main_genre', 'side_genre'])
 
-# %% testMovieRec2.ipynb 10
+# %% testMovieRec2.ipynb 11
 # combine Movie_Title and Year columns to make unique titles in the case of different movies having the same name
 def get_clean_title(data):
     clean_title = []
@@ -45,16 +52,20 @@ def get_clean_title(data):
         
     return clean_title
 
-# %% testMovieRec2.ipynb 11
+# %% testMovieRec2.ipynb 12
+# create clean_title column
 movies['clean_title'] = get_clean_title(movies)
 
-# %% testMovieRec2.ipynb 12
+# %% testMovieRec2.ipynb 14
+# remove duplicate rows from dataframe
 movies = movies.drop_duplicates(subset=['clean_title']).copy()
 
-# %% testMovieRec2.ipynb 14
+# %% testMovieRec2.ipynb 16
+# reset indexes in dataframe to clear empty duplicate indexes
 movies.reset_index(inplace = True, drop = True)
 
-# %% testMovieRec2.ipynb 16
+# %% testMovieRec2.ipynb 18
+# prepare columns then split into lists
 movies['Director'] = movies["Director"].str.replace("Directors:", "")
 movies['Director'] = movies['Director'].map(lambda x: x.replace(" ", "").lower().split(',')[:3])
 
@@ -62,27 +73,27 @@ movies['Actors'] = movies['Actors'].map(lambda x: x.replace(" ", "").lower().spl
 
 movies['genres'] = movies['genres'].map(lambda x: x.lower().split())
 
-# %% testMovieRec2.ipynb 22
-y = 2000
-
 # %% testMovieRec2.ipynb 23
+# initialize variable and create function to round year down to find decade of movie release
+y = 2003
+
 def round_down(year):
     return year - (year%10)
 
-round_down(y)
-
-# %% testMovieRec2.ipynb 24
+# %% testMovieRec2.ipynb 25
+# create decade column based on movie release year
 movies['decade'] = movies['Year'].apply(round_down)
 
-# %% testMovieRec2.ipynb 26
+# %% testMovieRec2.ipynb 27
+# join on columns to turn them into strings
 movies['Director'] = movies['Director'].str.join(" ")
 
 movies['Actors'] = movies['Actors'].str.join(" ")
 
 movies['genres'] = movies['genres'].str.join(" ")
 
-# %% testMovieRec2.ipynb 27
-# combine features
+# %% testMovieRec2.ipynb 29
+# combine feature columns into a single column to use as corpus
 def combine_features(data):
     combined_features = []
     for i in range(0, data.shape[0]):
@@ -93,34 +104,42 @@ def combine_features(data):
         
     return combined_features
 
-# %% testMovieRec2.ipynb 28
+# %% testMovieRec2.ipynb 30
+# create the combined_feature column
 movies['combined_features'] = combine_features(movies)
 
-# %% testMovieRec2.ipynb 30
-tfvec = TfidfVectorizer()
-tfvec_matrix = tfvec.fit_transform(movies['combined_features'])
-
-# %% testMovieRec2.ipynb 31
-cs = cosine_similarity(tfvec_matrix)
+# %% testMovieRec2.ipynb 32
+# vectorize the combined_features column and transform into a matrix
+vec = TfidfVectorizer()
+vec_matrix = vec.fit_transform(movies['combined_features'])
 
 # %% testMovieRec2.ipynb 33
+# get cosine similarity maxtrix from the vectorized matrix
+cs = cosine_similarity(vec_matrix)
+
+# %% testMovieRec2.ipynb 34
+# finds index of user-chosen movie, then provides a sorted list based on the
+# cosine similarity distance between other movies and recommends the top 5 matches
 def recommend(movie):
-    movie_indices = movies[movies['clean_title'] == movie].index[0]
-    distances = cs[movie_indices]
-    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+    movie_index = movies[movies['clean_title'] == movie].index[0]
+    cs_distances = cs[movie_index]
+    movie_list = sorted(list(enumerate(cs_distances)), reverse=True, key=lambda x: x[1])[1:6]
 
     recommended_movies = []
-    for i in movies_list:
+    for i in movie_list:
         recommended_movies.append(movies.iloc[i[0]].clean_title)
 
     return recommended_movies
 
-# %% testMovieRec2.ipynb 35
+# %% testMovieRec2.ipynb 36
+# provides a Streamlit selection box for the user to select a movie
 selected_movie_name = st.selectbox('Please select a movie you enjoy:', movies['clean_title'].values)
 
-# %% testMovieRec2.ipynb 36
+# %% testMovieRec2.ipynb 37
+# creates a Streamlit recommendation button that when clicked will provide 
+# the user with movie recommendations based on the chosen movie
 if st.button('Get Recommendations'):
     recommendations = recommend(selected_movie_name)
-    st.write("Based on your selection, we recommend the following movies:")
+    st.write(":blue[Based on your selection, we recommend the following movies:]")
     for j in recommendations:
         st.write(j)
