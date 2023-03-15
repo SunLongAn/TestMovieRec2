@@ -7,7 +7,7 @@ __all__ = []
 import streamlit as st
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 # %% testMovieRec2.ipynb 3
 st.title(":blue[Fanz O' Filmz] Movie Recommender")
@@ -96,14 +96,10 @@ def combine_features(data):
 # %% testMovieRec2.ipynb 28
 movies['combined_features'] = combine_features(movies)
 
-# %% testMovieRec2.ipynb 30
-count = CountVectorizer()
-count_matrix = count.fit_transform(movies['combined_features'])
+# %% testMovieRec2.ipynb 31
+cs = cosine_similarity(tfvec_matrix)
 
-# %% testMovieRec2.ipynb 32
-cs = cosine_similarity(count_matrix)
-
-# %% testMovieRec2.ipynb 34
+# %% testMovieRec2.ipynb 33
 def recommend(movie):
     movie_indices = movies[movies['clean_title'] == movie].index[0]
     distances = cs[movie_indices]
@@ -113,12 +109,12 @@ def recommend(movie):
     for i in movies_list:
         recommended_movies.append(movies.iloc[i[0]].clean_title)
 
-    return recommended_movies
+    return recommended_movies, movies_list
 
-# %% testMovieRec2.ipynb 36
+# %% testMovieRec2.ipynb 35
 selected_movie_name = st.selectbox('Please select a movie you enjoy:', movies['clean_title'].values)
 
-# %% testMovieRec2.ipynb 37
+# %% testMovieRec2.ipynb 36
 if st.button('Get Recommendations'):
     recommendations = recommend(selected_movie_name)
     st.write("Based on your selection, we recommend the following movies:")
