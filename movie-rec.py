@@ -16,7 +16,7 @@ st.title(":blue[Fanz O' Filmz] Movie Recommender")
 
 # %% movie-rec.ipynb 5
 # import data to dataframe
-df = pd.read_csv('data/IMDb_All_Genres_etf_clean1.csv')
+df = pd.read_csv('movie_data.csv')
 
 # %% movie-rec.ipynb 6
 # create copy of dataframe for editing to prevent errors, selecting features used for recommendations
